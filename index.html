@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Vite Vendu</title>
+<meta name="theme-color" content="#22345c">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Vite Vendu">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* VOICE: outil de poche, direct et chaleureux
+   IDEA: l'étiquette carton accrochée au vêtement, cousue sur du denim
+   PICTURE: grande étiquette kraft avec le total gagné ; chaque article en étiquette ; gros bouton micro rond
+   COLOUR and TYPE: denim profond, kraft, fil orange ; Archivo + Inter
+   LAYOUT: une colonne mobile, bandeau denim, barre d'action collée en bas */
+:root{color-scheme:light dark;
+--bg:light-dark(#ffffff,#0c1426);--ink:light-dark(#141b2d,#edf0f7);--mut:light-dark(#5a6377,#9ba5bb);
+--card:light-dark(#ffffff,#151f37);--line:light-dark(#e2e5ec,#27324f);--soft:light-dark(#f4f5f8,#111a30);
+--denim:#22345c;--denim2:light-dark(#2f4778,#a9c3ff);--kraft:light-dark(#e6cfa6,#4a3d28);--kraftink:light-dark(#3b2a10,#f4e4c6);
+--stitch:#ff6a3d;--ok:light-dark(#11795a,#5fd3a6);--warn:light-dark(#a24b00,#ffb36b)}
+*{box-sizing:border-box;min-width:0}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Inter,system-ui,-apple-system,sans-serif;overflow-x:clip;-webkit-tap-highlight-color:transparent}
+h1,h2,h3{font-family:Archivo,Inter,sans-serif;line-height:1.05;margin:0;text-wrap:balance}
+h1{font-size:32px;font-weight:800}h2{font-size:22px;font-weight:800}h3{font-size:18px;font-weight:800}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--stitch);outline-offset:2px}
+.wrap{max-width:640px;margin:0 auto}
+.top{background:var(--denim);color:#fff;padding:calc(env(safe-area-inset-top) + 16px) max(5vw,16px) 24px;border-bottom:3px dashed var(--stitch);background-image:repeating-linear-gradient(135deg,rgba(255,255,255,.035) 0 2px,transparent 2px 7px)}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.icon{width:44px;height:44px;border-radius:12px;border:0;background:rgba(255,255,255,.12);color:#fff;display:grid;place-items:center;flex:none}
+.icon svg{width:22px;height:22px}
+.hang{position:relative;margin:22px 0 0 18px;background:var(--kraft);color:var(--kraftink);border-radius:8px 18px 18px 8px;padding:20px 20px 18px 44px;box-shadow:0 10px 0 -4px rgba(0,0,0,.18);clip-path:polygon(22px 0,100% 0,100% 100%,22px 100%,0 50%)}
+.hang::before{content:"";position:absolute;left:18px;top:50%;width:14px;height:14px;margin-top:-7px;border-radius:50%;background:var(--denim);box-shadow:inset 0 0 0 3px rgba(0,0,0,.15)}
+.str{position:absolute;left:-2px;top:-6px;width:40px;height:60px;pointer-events:none}
+.big{font-family:Archivo,sans-serif;font-weight:800;font-size:clamp(40px,12vw,52px);line-height:1}
+.lbl{font-size:14px;opacity:.8;margin-top:4px}
+.mini{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:12px;font-size:14px}
+.mini b{font-family:Archivo,sans-serif;font-size:17px}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:16px max(5vw,16px) 4px;scrollbar-width:none}
+.chip{flex:none;min-height:40px;padding:0 14px;border-radius:999px;border:1.5px solid var(--line);background:var(--card);font-size:14px;font-weight:500}
+.chip.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chip:disabled{opacity:.5}
+.list{display:grid;gap:12px;padding:12px max(5vw,16px) 120px}
+.item{display:grid;grid-template-columns:76px minmax(0,1fr) auto;gap:12px;align-items:center;width:100%;text-align:left;background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:10px}
+.thumb{width:76px;height:76px;border-radius:10px;object-fit:cover;background:var(--soft);display:block}
+.ph{display:grid;place-items:center;color:var(--mut)}
+.it{font-weight:600;font-size:15px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.meta{display:block;font-size:13px;color:var(--mut);margin-top:4px}
+.drop{display:block;font-size:13px;color:var(--warn);font-weight:600;margin-top:2px}
+.pr{font-family:Archivo,sans-serif;font-weight:800;font-size:19px;white-space:nowrap}
+.pill{display:inline-block;font-size:12px;font-weight:600;padding:2px 8px;border-radius:999px;margin-right:6px}
+.s-draft{background:light-dark(#eceef3,#26304a);color:var(--mut)}.s-ready{background:light-dark(#fde6dc,#4a2619);color:light-dark(#a63a14,#ffb59a)}
+.s-sell{background:light-dark(#dfe8fb,#1f3160);color:light-dark(#1d3f8f,#a9c3ff)}.s-sold{background:light-dark(#daf3e8,#173d31);color:var(--ok)}
+.empty{text-align:center;padding:36px 12px;color:var(--mut)}
+.empty h3{color:var(--ink);font-size:20px;margin-bottom:6px}
+.fab{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom) + 16px);min-height:56px;padding:0 26px;border:0;border-radius:999px;background:var(--stitch);color:#fff;font-weight:700;font-size:17px;box-shadow:0 8px 24px rgba(255,106,61,.35);white-space:nowrap}
+.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:18px}
+.steps button{min-height:44px;border-radius:10px;border:0;background:rgba(255,255,255,.1);color:#fff;font-size:14px;font-weight:600}
+.steps button.on{background:#fff;color:var(--denim)}
+.sec{padding:20px max(5vw,16px) 130px;display:grid;gap:20px}
+.box{display:grid;gap:10px}
+.lab{font-size:14px;font-weight:600}
+.hint{font-size:14px;color:var(--mut);margin:0}
+input[type=text],input[type=number],input[type=password],textarea,select{width:100%;min-height:48px;border:1.5px solid var(--line);background:var(--card);border-radius:12px;padding:12px;font-size:16px}
+textarea{min-height:110px;resize:vertical;line-height:1.45}
+.g2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.g3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.g3 label,.g2 label{display:grid;gap:4px;font-size:13px;color:var(--mut)}
+.guess{color:var(--stitch);font-weight:600}
+.opts{display:flex;flex-wrap:wrap;gap:8px}
+.photos{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.pbox{position:relative;aspect-ratio:3/4;border-radius:12px;overflow:hidden;background:var(--soft);border:0;padding:0}
+.pbox img{width:100%;height:100%;object-fit:cover;display:block}
+.badge{position:absolute;left:6px;top:6px;background:var(--stitch);color:#fff;font-size:11px;font-weight:700;padding:3px 8px;border-radius:999px}
+.badge.ai{background:#6a4bd8}.badge.ed{left:auto;right:6px;background:var(--ok)}
+.add{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.add label{position:relative;display:grid;place-items:center;gap:6px;min-height:92px;border:2px dashed var(--line);border-radius:14px;font-weight:600;font-size:15px;text-align:center;padding:10px}
+.add input,.hidden-in{position:absolute;opacity:0;width:1px;height:1px}
+.add svg{width:26px;height:26px;color:var(--stitch)}
+.btn{min-height:50px;border-radius:14px;border:0;padding:0 18px;font-weight:700;font-size:16px;background:var(--denim);color:#fff;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;text-align:center}
+.btn.alt{background:var(--soft);color:var(--ink);border:1.5px solid var(--line)}
+.btn.hot{background:var(--stitch)}
+.btn:disabled{opacity:.55}
+.banner{display:flex;gap:10px;align-items:center;background:var(--soft);border-radius:12px;padding:12px;font-size:14px}
+.mic-wrap{display:grid;justify-items:center;gap:10px;padding:18px;border-radius:18px;background:var(--soft)}
+.micbtn{width:96px;height:96px;border-radius:50%;border:0;background:var(--stitch);color:#fff;display:grid;place-items:center;box-shadow:0 8px 24px rgba(255,106,61,.35)}
+.micbtn svg{width:40px;height:40px}
+.micbtn.rec{background:#d62f2f;animation:pulse 1.2s ease-in-out infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 14px rgba(214,47,47,.18)}}
+.timer{font-family:Archivo,sans-serif;font-weight:800;font-size:22px}
+.foot{position:fixed;left:0;right:0;bottom:0;background:var(--bg);border-top:1px solid var(--line);padding:10px max(5vw,16px) calc(env(safe-area-inset-bottom) + 10px);z-index:5}
+.foot .wrap{display:flex;gap:10px}.foot .btn{flex:1}
+.tag{position:relative;background:var(--kraft);color:var(--kraftink);border-radius:16px;padding:18px 18px 16px}
+.tag .big{font-size:48px}
+.tag .row{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.tag .row button{min-height:44px;border-radius:10px;border:1.5px solid rgba(0,0,0,.15);background:rgba(255,255,255,.35);color:inherit;padding:0 12px;font-size:14px}
+.tag .row button.on{background:var(--denim);color:#fff;border-color:var(--denim)}
+.tag p{margin:10px 0 0;font-size:14px}
+.fld{display:grid;gap:6px;padding:14px;border:1.5px solid var(--line);border-radius:14px;background:var(--card)}
+.fh{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.fh span{font-size:13px;font-weight:600;color:var(--mut)}
+.cp{min-height:36px;min-width:84px;border-radius:999px;border:0;background:var(--denim);color:#fff;font-size:13px;font-weight:600;padding:0 12px}
+.cp.done{background:var(--ok)}
+.fld input,.fld textarea{border:0;padding:0;min-height:0;background:transparent;border-radius:0}
+.fld textarea{min-height:150px}
+.ext{display:inline-flex;align-items:center;gap:6px;min-height:44px;font-weight:600;color:var(--denim2);text-decoration:none}
+.err{background:light-dark(#fdecea,#3d1714);color:light-dark(#9b1c12,#ffb0a8);border-radius:12px;padding:12px;font-size:14px}
+.note{font-size:13px;color:var(--mut);margin:0}
+.card{display:grid;gap:12px;padding:16px;border-radius:16px;border:1.5px solid var(--line);background:var(--card)}
+.spin{display:inline-block;width:18px;height:18px;border-radius:50%;border:3px solid currentColor;border-right-color:transparent;animation:r .8s linear infinite;vertical-align:-3px;flex:none}
+@keyframes r{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.spin,.micbtn.rec{animation:none}}
+.toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 14px);transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:999px;font-size:14px;font-weight:600;z-index:20;opacity:0;transition:opacity .2s;pointer-events:none;max-width:92vw;text-align:center}
+.toast.on{opacity:1}
+.sheet{position:fixed;inset:0;background:rgba(5,10,20,.6);z-index:10;display:flex;align-items:flex-end;justify-content:center}
+.sheet .in{background:var(--bg);width:100%;max-width:640px;border-radius:20px 20px 0 0;padding:16px max(5vw,16px) calc(env(safe-area-inset-bottom) + 16px);display:grid;gap:10px;max-height:92vh;overflow:auto}
+.sheet img{width:100%;max-height:52vh;object-fit:contain;border-radius:12px;background:var(--soft)}
+.sold{display:grid;gap:10px;padding:14px;border-radius:14px;background:var(--soft)}
+ol.steps-list{margin:0;padding-left:20px;display:grid;gap:6px;font-size:15px}
+@media (max-width:380px){.g3{grid-template-columns:repeat(2,minmax(0,1fr))}.photos{grid-template-columns:repeat(2,minmax(0,1fr))}}
+</style>
+</head>
+<body>
+<div id="app" class="wrap"><header class="top"><h1>Vite Vendu</h1></header><p class="empty">Chargement…</p></div>
+<div id="sheet"></div>
+<div id="toast" class="toast" role="status"></div>
+<script>
+{
+/* =============== outils =============== */
+const $=s=>document.querySelector(s);
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const num=v=>{const x=Math.round(parseFloat(String(v??'').replace(',','.')));return isNaN(x)?null:x};
+const eur=n=>n==null||n===''||isNaN(n)?'—':Math.round(+n)+' €';
+const days=t=>t?Math.floor((Date.now()-t)/864e5):0;
+const uid=p=>p+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const ls={get:(k,d)=>{try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const STAT={draft:['À compléter','s-draft'],ready:['Prêt à publier','s-ready'],selling:['En vente','s-sell'],sold:['Vendu','s-sold']};
+const ETATS=['Neuf avec étiquette','Neuf sans étiquette','Très bon état','Bon état','Satisfaisant'];
+const TONES={simple:'Simple',chaleureux:'Chaleureux',pro:'Pro'};
+const STYLES={court:'plus courte (2 à 3 phrases)',fun:'avec un ton plus fun et décontracté',vendeur:'plus vendeuse, en mettant en avant les points forts, sans exagérer ni mentir'};
+const DECORS={rue:['Rue','dans une rue calme en ville, arrière-plan légèrement flou'],cosy:['Intérieur cosy','dans un intérieur lumineux et cosy (chambre ou salon), arrière-plan légèrement flou'],studio:['Mur uni','devant un mur uni blanc cassé ou beige, sans décor'],parc:['Parc','en extérieur dans un parc, lumière douce de fin de journée']};
+const FIELDS={brand:'Marque',size:'Taille',color:'Couleur',material:'Matière'};
+const AI_NOTE='Info : la dernière photo est un visuel généré par IA pour illustrer le porté. Les autres photos montrent l’article réel.';
+const IC={gear:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>',
+back:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>',
+cam:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>',
+img:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 17l-5-5-9 8"/></svg>',
+shirt:'<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 3l-5 3 2 5 3-1v11h8V10l3 1 2-5-5-3a4 4 0 0 1-8 0z"/></svg>',
+mic:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>',
+stop:'<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>'};
+const STR='<svg class="str" viewBox="0 0 40 60"><path d="M27 34 C 14 26, 10 12, 2 2" stroke="#ff6a3d" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg>';
+
+/* =============== stockage (IndexedDB) =============== */
+const DB=(()=>{let p;
+  const open=()=>p||(p=new Promise((res,rej)=>{const r=indexedDB.open('vitevendu',1);r.onupgradeneeded=()=>{const d=r.result;d.createObjectStore('items',{keyPath:'id'});d.createObjectStore('photos')};r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}));
+  const tx=async(st,mode,fn)=>{const d=await open();return new Promise((res,rej)=>{const t=d.transaction(st,mode);const q=fn(t.objectStore(st));t.oncomplete=()=>res(q&&q.result);t.onerror=()=>rej(t.error);t.onabort=()=>rej(t.error)})};
+  return{all:()=>tx('items','readonly',s=>s.getAll()),put:it=>tx('items','readwrite',s=>s.put(it)),del:id=>tx('items','readwrite',s=>s.delete(id)),
+    putPhoto:(k,b)=>tx('photos','readwrite',s=>s.put(b,k)),getPhoto:k=>tx('photos','readonly',s=>s.get(k)),delPhoto:k=>tx('photos','readwrite',s=>s.delete(k))};
+})();
+const urls={};
+async function photoUrl(id){if(urls[id])return urls[id];const b=await DB.getPhoto(id).catch(()=>null);if(!b)return '';return urls[id]=URL.createObjectURL(b)}
+async function photoBlob(id){return DB.getPhoto(id)}
+function hydrate(){document.querySelectorAll('img[data-pid]').forEach(async im=>{const u=await photoUrl(im.dataset.pid);if(u&&im.src!==u)im.src=u})}
+
+/* =============== état =============== */
+const S={items:[],settings:Object.assign({tone:'chaleureux',sign:'Envoi rapide et soigné.',tags:'',key:'',model:''},ls.get('vv-set',{})),
+  view:'home',filter:'all',cur:null,step:0,busy:'',err:'',confirmDel:false,soldOpen:false,rec:null,recT:0,prefill:'',decor:'cosy',sheet:null};
+const app=$('#app');
+function toast(t,ms){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('on'),ms||2400)}
+function saveSettings(){ls.set('vv-set',S.settings)}
+let saveT=null;
+function hasContent(c){return c&&(c.photos.length||c.notes||c.brand||c.ai)}
+function saveSoon(){clearTimeout(saveT);saveT=setTimeout(saveNow,600)}
+function saveNow(){clearTimeout(saveT);const c=S.cur;if(!hasContent(c))return;c.updated=Date.now();const body=JSON.parse(JSON.stringify(c));
+  const i=S.items.findIndex(x=>x.id===body.id);if(i<0)S.items.unshift(body);else S.items[i]=body;
+  DB.put(body).catch(()=>toast('Sauvegarde impossible : stockage du téléphone plein ?'))}
+
+/* =============== images =============== */
+function loadImg(blob){return new Promise((res,rej)=>{const u=URL.createObjectURL(blob),im=new Image();im.onload=()=>{res([im,u])};im.onerror=()=>{URL.revokeObjectURL(u);rej(new Error('image illisible'))};im.src=u})}
+async function shrink(blob,max,q){const [im,u]=await loadImg(blob);const k=Math.min(1,max/Math.max(im.naturalWidth,im.naturalHeight));const c=document.createElement('canvas');c.width=Math.round(im.naturalWidth*k);c.height=Math.round(im.naturalHeight*k);c.getContext('2d').drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);return toBlob(c,q)}
+const toBlob=(c,q)=>new Promise((res,rej)=>c.toBlob(b=>b?res(b):rej(new Error('image')),'image/jpeg',q||.88));
+const b64=blob=>new Promise(r=>{const f=new FileReader();f.onload=()=>r(String(f.result).split(',')[1]);f.readAsDataURL(blob)});
+async function enhance(blob){
+  const [im,u]=await loadImg(blob);const c=document.createElement('canvas');c.width=im.naturalWidth;c.height=im.naturalHeight;const x=c.getContext('2d');x.drawImage(im,0,0);URL.revokeObjectURL(u);
+  const d=x.getImageData(0,0,c.width,c.height),p=d.data,n=p.length/4;
+  const hist=new Uint32Array(256);let sr=0,sg=0,sb=0;
+  for(let i=0;i<p.length;i+=4){const l=(p[i]*.299+p[i+1]*.587+p[i+2]*.114)|0;hist[l]++;sr+=p[i];sg+=p[i+1];sb+=p[i+2]}
+  let lo=0,hi=255,acc=0;for(;lo<255;lo++){acc+=hist[lo];if(acc>n*.005)break}acc=0;for(;hi>0;hi--){acc+=hist[hi];if(acc>n*.005)break}
+  if(hi-lo<40){lo=0;hi=255}
+  const mr=sr/n,mg=sg/n,mb=sb/n,mm=(mr+mg+mb)/3,wr=1+(mm/mr-1)*.5,wg=1+(mm/mg-1)*.5,wb=1+(mm/mb-1)*.5,sc=255/(hi-lo);
+  const lut=new Uint8ClampedArray(256);for(let v=0;v<256;v++){const t=Math.min(1,Math.max(0,(v-lo)/(hi-lo)));lut[v]=Math.round(255*Math.pow(t,.94))}
+  for(let i=0;i<p.length;i+=4){let r=Math.min(255,p[i]*wr),g=Math.min(255,p[i+1]*wg),b=Math.min(255,p[i+2]*wb);
+    r=lut[r|0];g=lut[g|0];b=lut[b|0];const l=r*.299+g*.587+b*.114;p[i]=l+(r-l)*1.08;p[i+1]=l+(g-l)*1.08;p[i+2]=l+(b-l)*1.08}
+  x.putImageData(d,0,0);return toBlob(c,.9);
+}
+let rbg=null;
+async function whiteBg(blob,onp){
+  if(!rbg)rbg=await import('https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.7.0/+esm');
+  const cut=await rbg.removeBackground(blob,{model:'isnet_quint8',output:{format:'image/png'},progress:(k,cur,tot)=>{if(onp&&tot)onp(Math.round(cur/tot*100))}});
+  const [im,u]=await loadImg(cut);const pad=Math.round(Math.max(im.naturalWidth,im.naturalHeight)*.06);
+  const c=document.createElement('canvas');c.width=im.naturalWidth+pad*2;c.height=im.naturalHeight+pad*2;const x=c.getContext('2d');
+  x.fillStyle='#ffffff';x.fillRect(0,0,c.width,c.height);x.shadowColor='rgba(0,0,0,.12)';x.shadowBlur=pad*.6;x.shadowOffsetY=pad*.2;x.drawImage(im,pad,pad);URL.revokeObjectURL(u);
+  return toBlob(c,.9);
+}
+
+/* =============== audio =============== */
+async function toWav(blob){
+  const AC=window.AudioContext||window.webkitAudioContext;const ac=new AC();
+  const buf=await new Promise((res,rej)=>{blob.arrayBuffer().then(ab=>{const p=ac.decodeAudioData(ab,res,rej);if(p&&p.then)p.then(res,rej)},rej)});
+  try{ac.close()}catch(e){}
+  const rate=16000,off=new OfflineAudioContext(1,Math.max(1,Math.ceil(buf.duration*rate)),rate),src=off.createBufferSource();src.buffer=buf;src.connect(off.destination);src.start();
+  const out=(await off.startRendering()).getChannelData(0),len=out.length,ab=new ArrayBuffer(44+len*2),v=new DataView(ab);
+  const w=(o,s)=>{for(let i=0;i<s.length;i++)v.setUint8(o+i,s.charCodeAt(i))};
+  w(0,'RIFF');v.setUint32(4,36+len*2,true);w(8,'WAVE');w(12,'fmt ');v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);v.setUint32(24,rate,true);v.setUint32(28,rate*2,true);v.setUint16(32,2,true);v.setUint16(34,16,true);w(36,'data');v.setUint32(40,len*2,true);
+  for(let i=0;i<len;i++){const s=Math.max(-1,Math.min(1,out[i]));v.setInt16(44+i*2,s<0?s*32768:s*32767,true)}
+  return new Blob([ab],{type:'audio/wav'});
+}
+async function startRec(){
+  if(!navigator.mediaDevices||!window.MediaRecorder){toast('Enregistrement audio non pris en charge ici');return}
+  let stream;try{stream=await navigator.mediaDevices.getUserMedia({audio:true})}catch(e){toast('Micro refusé. Autorise-le dans Réglages › Safari › Micro.',4000);return}
+  const mime=['audio/mp4','audio/webm;codecs=opus','audio/webm'].find(m=>MediaRecorder.isTypeSupported&&MediaRecorder.isTypeSupported(m))||'';
+  const mr=new MediaRecorder(stream,mime?{mimeType:mime}:undefined),chunks=[];
+  mr.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data)};
+  mr.onstop=()=>{stream.getTracks().forEach(t=>t.stop());clearInterval(S.recI);const blob=new Blob(chunks,{type:mr.mimeType||mime||'audio/mp4'});S.rec=null;render();if(blob.size>1000)voiceNote(blob);else toast('Enregistrement trop court')};
+  mr.start(500);S.rec=mr;S.recT=Date.now();S.recI=setInterval(()=>{const t=$('#timer');const s=Math.floor((Date.now()-S.recT)/1000);if(t)t.textContent=Math.floor(s/60)+':'+String(s%60).padStart(2,'0');if(s>=180)mr.stop()},250);render();
+}
+
+/* =============== Gemini =============== */
+const GB='https://generativelanguage.googleapis.com/v1beta/';
+async function models(force){
+  const k=S.settings.key;if(!k)throw new Error('Ajoute ta clé Gemini dans les réglages.');
+  const cached=ls.get('vv-models',null);if(!force&&cached&&cached.k===k.slice(-6)&&Date.now()-cached.t<3*864e5)return cached.list;
+  const r=await fetch(GB+'models?pageSize=200&key='+encodeURIComponent(k));
+  if(!r.ok){if(r.status===400||r.status===403)throw new Error('Clé Gemini refusée : vérifie-la dans les réglages.');throw new Error('Gemini injoignable ('+r.status+')')}
+  const j=await r.json(),vers=n=>{const m=n.match(/(\d+(?:\.\d+)?)/);return m?parseFloat(m[1]):0};
+  const list=(j.models||[]).filter(m=>(m.supportedGenerationMethods||[]).includes('generateContent')&&/flash/.test(m.name)&&!/image|tts|live|audio|embed|thinking|robot|computer|nano|exp/.test(m.name)).map(m=>m.name)
+    .sort((a,b)=>{const la=/lite/.test(a),lb=/lite/.test(b);if(la!==lb)return la?1:-1;const pa=/preview/.test(a),pb=/preview/.test(b);if(pa!==pb)return pa?1:-1;const va=vers(b)-vers(a);if(va)return va;return a.length-b.length});
+  ls.set('vv-models',{k:k.slice(-6),t:Date.now(),list});return list;
+}
+async function gemini(parts,json){
+  let list=await models();if(S.settings.model)list=[S.settings.model,...list.filter(m=>m!==S.settings.model)];
+  if(!list.length)throw new Error('Aucun modèle Gemini disponible avec cette clé.');
+  let last='';
+  for(const m of list.slice(0,4)){
+    let r;try{r=await fetch(GB+m+':generateContent?key='+encodeURIComponent(S.settings.key),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{role:'user',parts}],generationConfig:json?{responseMimeType:'application/json',temperature:.4}:{temperature:.5}})})}catch(e){last='connexion impossible';continue}
+    if(r.status===429||r.status===404||r.status>=500){last=r.status===429?'quota gratuit atteint pour le moment':'modèle indisponible';continue}
+    const j=await r.json().catch(()=>({}));
+    if(!r.ok){if(r.status===400&&/API key/i.test(JSON.stringify(j)))throw new Error('Clé Gemini invalide : vérifie-la dans les réglages.');last=(j.error&&j.error.message)||('erreur '+r.status);continue}
+    const t=((j.candidates&&j.candidates[0]&&j.candidates[0].content&&j.candidates[0].content.parts)||[]).map(p=>p.text||'').join('');
+    if(!t){last='réponse vide (contenu bloqué ?)';continue}
+    S.usedModel=m.replace('models/','');return t;
+  }
+  throw new Error('Gemini n’a pas pu répondre : '+last+'. Réessaie dans une minute.');
+}
+const parse=t=>{const a=t.indexOf('{'),b=t.lastIndexOf('}');if(a<0||b<a)throw new Error('réponse illisible');return JSON.parse(t.slice(a,b+1))};
+async function imgParts(max){const out=[];for(const p of S.cur.photos.filter(p=>!p.ai).slice(0,max||6)){try{const b=await photoBlob(p.id);if(b)out.push({inline_data:{mime_type:'image/jpeg',data:await b64(await shrink(b,1024,.8))}})}catch(e){}}return out}
+function sellerInfo(c){
+  const L=[['Notes du vendeur',c.notes],['Type',c.type],['Marque',c.brand],['Taille',c.size],['Couleur',c.color],['Matière',c.material],['État',c.etat],['Défauts',c.defects],['Mesures',c.measures],
+  ['Prix payé',c.paid!=null?c.paid+' €':''],['Prix espéré',c.wanted!=null?c.wanted+' €':''],['Prix minimum',c.min!=null?c.min+' €':''],['Objectif',c.goal==='fast'?'vendre vite':'vendre au meilleur prix'],['Prix observés sur Vinted',c.seen]];
+  return L.filter(x=>x[1]).map(x=>'- '+x[0]+' : '+x[1]).join('\n')||'- (aucune info : déduis tout des photos)';
+}
+function errMsg(e){return (e&&e.message)||'erreur inconnue'}
+function needKey(){if(S.settings.key)return false;S.err='Il faut d’abord ta clé Gemini gratuite (Réglages, 2 minutes).';render();return true}
+
+/* préremplissage depuis les photos */
+async function prefill(){
+  const c=S.cur;if(!c||!S.settings.key||!c.photos.some(p=>!p.ai)||S.prefill==='run')return;
+  const sig=c.photos.filter(p=>!p.ai).map(p=>p.id).join(',');if(c.prefillSig===sig)return;
+  S.prefill='run';render();
+  try{
+    const parts=await imgParts(6);
+    parts.push({text:'Tu es expert en vêtements d’occasion. Analyse ces photos d’un article à vendre sur Vinted. Lis les étiquettes (marque, taille, composition) quand elles sont visibles. N’invente rien : si une info n’est pas lisible ou déductible avec certitude, mets "". Réponds en JSON : {"type":"ex. pull col rond","marque":"","taille":"","couleur":"","matiere":"","etat":"une valeur parmi : '+ETATS.join(' | ')+', ou vide","defauts":"défauts visibles, ou vide","genre":"Femmes | Hommes | Enfants | Unisexe | vide"}'});
+    const j=parse(await gemini(parts,true));
+    const map={type:'type',brand:'marque',size:'taille',color:'couleur',material:'matiere',etat:'etat',defects:'defauts',genre:'genre'};
+    c.guess=c.guess||{};let n=0;
+    for(const f in map){const v=String(j[map[f]]||'').trim();if(v&&!c[f]){if(f==='etat'&&!ETATS.includes(v))continue;c[f]=v;c.guess[f]=1;n++}}
+    c.prefillSig=sig;S.prefill='done:'+n;saveNow();
+  }catch(e){S.prefill='err:'+errMsg(e)}
+  if(S.cur===c)render();
+}
+
+/* note vocale */
+async function voiceNote(blob){
+  const c=S.cur;if(!c)return;if(needKey())return;
+  S.busy='voice';S.err='';render();
+  try{
+    let audio;try{audio=await toWav(blob)}catch(e){audio=blob}
+    const mt=(audio.type||'audio/mp4').split(';')[0];
+    const parts=[{inline_data:{mime_type:mt==='audio/mp4'?'audio/aac':mt,data:await b64(audio)}},...await imgParts(3)];
+    parts.push({text:'Voici une note vocale (en français) d’un particulier qui décrit un vêtement qu’il veut vendre sur Vinted, avec des photos de l’article. Infos déjà connues :\n'+sellerInfo(c)+'\n\n1) Transcris fidèlement la note vocale, en corrigeant juste les hésitations (euh, bah).\n2) Extrais ce que le vendeur DIT (ce qu’il dit prime sur les infos déjà connues). Ne remplis un champ que s’il en parle, sinon "". Prix en euros entiers.\nRéponds en JSON : {"transcription":"","type":"","marque":"","taille":"","couleur":"","matiere":"","etat":"une valeur parmi : '+ETATS.join(' | ')+', ou vide","defauts":"","mesures":"","prix_paye":null,"prix_espere":null,"prix_min":null,"objectif":"vite | max | vide"}'});
+    const j=parse(await gemini(parts,true));let n=0;
+    const tr=String(j.transcription||'').trim();if(tr){c.notes=((c.notes||'').trim()+(c.notes?'\n':'')+tr).trim();n++}
+    const map={type:'type',brand:'marque',size:'taille',color:'couleur',material:'matiere',defects:'defauts',measures:'mesures'};
+    c.guess=c.guess||{};
+    for(const f in map){const v=String(j[map[f]]||'').trim();if(v){c[f]=v;delete c.guess[f];n++}}
+    if(j.etat&&ETATS.includes(j.etat)){c.etat=j.etat;delete c.guess.etat;n++}
+    for(const [f,k] of [['paid','prix_paye'],['wanted','prix_espere'],['min','prix_min']]){const v=num(j[k]);if(v!=null){c[f]=v;n++}}
+    if(j.objectif==='vite')c.goal='fast';else if(j.objectif==='max')c.goal='max';
+    toast('Note analysée : '+n+' info'+(n>1?'s':'')+' remplie'+(n>1?'s':''));
+  }catch(e){S.err='La note vocale n’a pas pu être analysée : '+errMsg(e)}
+  S.busy='';saveNow();if(S.cur===c)render();
+}
+
+/* annonce */
+function prompt(mode){
+  const c=S.cur,st=S.settings,tone=(TONES[st.tone]||'Chaleureux').toLowerCase();
+  const head='Tu aides un particulier en France à vendre un vêtement d’occasion sur Vinted. Les photos de l’article sont jointes.\n\nINFOS DU VENDEUR\n'+sellerInfo(c)+'\n\n';
+  const pr='Prix en euros entiers, réalistes pour Vinted (occasion entre particuliers) : tiens compte de la marque, du type, de l’état, de la saison et du prix payé. bas ≤ conseille ≤ haut, et rapide ≤ conseille. '+(c.min!=null?'Aucun prix sous '+c.min+' € (minimum du vendeur). ':'')+(c.goal==='fast'?'Objectif vendre vite : prix conseillé proche du bas. ':'Objectif meilleur prix : prix conseillé vers le haut, sans être hors marché. ')+(c.seen?'Des prix observés sur Vinted sont fournis : appuie-toi d’abord sur eux. ':'');
+  if(mode==='full')return head+'RÈGLES\n- Les infos du vendeur priment sur ce que tu vois. Info inconnue = "" : n’invente jamais la marque ni la taille.\n- titre : 40 à 60 caractères, type + marque + détail clé + taille.\n- description : ton '+tone+', écrite comme un vrai particulier, naturelle, sans formules marketing creuses ni avalanche d’emojis. 3 à 6 phrases courtes. Mentionne l’état et les défauts honnêtement, et les mesures si connues. Pas de hashtags dedans. Termine par : "'+st.sign+'"\n- hashtags : 6 à 10, minuscules, sans accents ni espaces, utiles pour la recherche Vinted'+(st.tags?' ; inclus aussi : '+st.tags:'')+'.\n- etat : une valeur exacte parmi : '+ETATS.join(' | ')+'.\n- categorie : chemin de catégories Vinted, ex. "Hommes > Vêtements > Sweats et pulls > Pulls".\n- '+pr+'\nRéponds en JSON : {"type":"","marque":"","taille":"","couleur":"","matiere":"","etat":"","categorie":"","titre":"","description":"","hashtags":["#..."],"prix":{"bas":0,"conseille":0,"haut":0,"rapide":0},"explication":"1 à 2 phrases sur le prix","recherche":"3 à 5 mots-clés pour chercher des articles similaires sur Vinted","defauts":"défauts visibles, ou vide"}';
+  const a=c.ai||{},fiche='ANNONCE ACTUELLE\nTitre : '+a.titre+'\nCatégorie : '+a.categorie+'\nDescription : '+a.description+'\n\n';
+  if(mode==='price')return head+fiche+'Recalcule uniquement le prix. '+pr+'\nRéponds en JSON : {"prix":{"bas":0,"conseille":0,"haut":0,"rapide":0},"explication":"1 à 2 phrases"}';
+  return head+fiche+'Réécris la description '+(STYLES[mode]||'')+'. Garde les infos vraies et les défauts, ton naturel de particulier, pas de hashtags, et termine par : "'+st.sign+'"\nRéponds en JSON : {"description":""}';
+}
+function cleanPrix(p){p=p||{};const o={bas:num(p.bas),conseille:num(p.conseille),haut:num(p.haut),rapide:num(p.rapide)};const m=S.cur.min;if(m!=null)for(const k in o)if(o[k]!=null&&o[k]<m)o[k]=m;return o}
+function tagsStr(h){const arr=(Array.isArray(h)?h:String(h||'').split(/[\s,]+/)).map(x=>String(x).trim()).filter(Boolean).map(x=>x[0]==='#'?x:'#'+x);
+  for(const f of String(S.settings.tags||'').split(/[\s,]+/).filter(Boolean)){const t=f[0]==='#'?f:'#'+f;if(!arr.includes(t))arr.push(t)}return arr.join(' ')}
+async function analyze(mode){
+  if(needKey())return;const c=S.cur;S.busy=mode;S.err='';render();
+  try{
+    const parts=await imgParts(mode==='full'?6:2);parts.push({text:prompt(mode)});
+    const j=parse(await gemini(parts,true));
+    if(mode==='full'){
+      c.ai={type:c.type||j.type||'',titre:j.titre||'',description:j.description||'',hashtags:tagsStr(j.hashtags),categorie:j.categorie||'',marque:c.brand||j.marque||'',taille:c.size||j.taille||'',etat:c.etat||j.etat||'',couleur:c.color||j.couleur||'',matiere:c.material||j.matiere||'',prix:cleanPrix(j.prix),explication:j.explication||'',recherche:j.recherche||'',defauts:j.defauts||''};
+      c.price=c.ai.prix.conseille;if(c.status==='draft')c.status='ready';
+    }else if(mode==='price'){c.ai.prix=cleanPrix(j.prix);c.ai.explication=j.explication||'';c.price=c.ai.prix.conseille;toast('Prix recalculé')}
+    else{c.ai.description=j.description||c.ai.description;toast('Description réécrite')}
+  }catch(e){S.err='L’analyse a échoué : '+errMsg(e)}
+  S.busy='';saveNow();if(S.cur===c)render();
+}
+
+/* visuel porté */
+function wornPrompt(){
+  const c=S.cur,g=(c.genre||'').toLowerCase(),who=/femme/.test(g)?'une femme':/homme/.test(g)?'un homme':/enfant/.test(g)?'un enfant':'une personne';
+  const what=[c.type||(c.ai&&c.ai.type),c.brand,c.color].filter(Boolean).join(', ')||'ce vêtement';
+  return 'À partir de la photo jointe, crée une photo réaliste de ce vêtement porté ('+what+').\n'+
+  'Le vêtement doit rester strictement identique à la photo : même couleur exacte, mêmes motifs, logos, coutures, coupe, matière et éventuels défauts. Ne change rien à l’article et ne l’embellis pas.\n'+
+  'Il est porté par '+who+' à la silhouette naturelle, cadrage vertical du cou aux genoux (visage hors champ), pose décontractée, mains naturelles.\n'+
+  'Style photo Pinterest / Vinted : lumière naturelle douce, '+DECORS[S.decor][1]+', tons neutres, rendu photo smartphone haut de gamme, format vertical 3:4.\n'+
+  'Pas de texte, pas de logo ajouté, pas de filigrane.';
+}
+async function shareFiles(files,text){
+  if(navigator.canShare&&navigator.canShare({files})){try{await navigator.share(text?{files,text}:{files});return true}catch(e){if(e&&e.name==='AbortError')return true}}
+  return false;
+}
+
+/* =============== copie =============== */
+function copy(text,btn){
+  const ok=()=>{if(btn){const o=btn.textContent;btn.textContent='Copié ✓';btn.classList.add('done');setTimeout(()=>{btn.textContent=o;btn.classList.remove('done')},1400)}else toast('Copié')};
+  const fb=()=>{const t=document.createElement('textarea');t.value=text;t.setAttribute('readonly','');t.style.position='fixed';t.style.opacity='0';document.body.appendChild(t);t.select();t.setSelectionRange(0,text.length);let s=false;try{s=document.execCommand('copy')}catch(e){}t.remove();s?ok():toast('Copie bloquée : sélectionne le texte à la main')};
+  try{navigator.clipboard.writeText(text).then(ok,fb)}catch(e){fb()}
+}
+function fieldText(f){const c=S.cur,a=c.ai||{};if(f==='description')return (a.description||'')+(c.photos.some(p=>p.ai)?'\n\n'+AI_NOTE:'')+(a.hashtags?'\n\n'+a.hashtags:'');if(f==='price')return String(c.price??'');return String(a[f]||'')}
+
+/* =============== vues =============== */
+function card(i){
+  const st=STAT[i.status]||STAT.draft,ph=(i.photos||[])[0];
+  const title=(i.ai&&i.ai.titre)||[i.type,i.brand,i.size].filter(Boolean).join(' · ')||'Article sans titre';
+  const price=i.status==='sold'?i.soldPrice:i.price;let meta='',drop='';
+  if(i.status==='selling'){const d=days(i.listedAt);meta=d?'en vente depuis '+d+' j':'mis en vente aujourd’hui';if(d>=14&&i.price){const np=Math.max(i.min||0,Math.round(i.price*.9));if(np<i.price)drop='Baisse conseillée : '+np+' €'}}
+  else if(i.status==='sold')meta='vendu'+(i.soldAt?' il y a '+days(i.soldAt)+' j':'');
+  else{const n=(i.photos||[]).length;meta=n+' photo'+(n>1?'s':'')}
+  return '<button class="item" data-a="open" data-v="'+esc(i.id)+'">'+(ph?'<img class="thumb" alt="" data-pid="'+esc(ph.id)+'">':'<span class="thumb ph">'+IC.shirt+'</span>')+
+  '<span><span class="it">'+esc(title)+'</span><span class="meta"><span class="pill '+st[1]+'">'+st[0]+'</span>'+esc(meta)+'</span>'+(drop?'<span class="drop">'+esc(drop)+'</span>':'')+'</span><span class="pr">'+eur(price)+'</span></button>';
+}
+function vHome(){
+  const it=S.items,sold=it.filter(i=>i.status==='sold'),gain=sold.reduce((a,i)=>a+(+i.soldPrice||0),0);
+  const F=[['all','Tous'],['draft','À compléter'],['ready','Prêts'],['selling','En vente'],['sold','Vendus']];
+  const list=S.filter==='all'?it:it.filter(i=>i.status===S.filter);
+  let body;
+  if(!S.settings.key)body='<div class="card"><h3>Première étape : ta clé Gemini gratuite</h3><p class="hint">Elle permet à l’appli d’analyser tes photos et ta voix. Ça prend 2 minutes, une seule fois.</p><button class="btn hot" data-a="settings">Ajouter ma clé</button></div>';
+  else body='';
+  if(!it.length)body+='<div class="empty"><h3>Ton premier article ?</h3><p>Ajoute des photos : l’appli devine marque, taille, couleur. Raconte le reste à l’oral, et l’annonce est prête.</p></div>';
+  else if(!list.length)body+='<p class="empty">Rien dans cette catégorie pour l’instant.</p>';
+  else body+=list.map(card).join('');
+  return '<header class="top"><div class="bar"><h1>Mes articles</h1><button class="icon" data-a="settings" aria-label="Réglages">'+IC.gear+'</button></div>'+
+  '<div style="position:relative">'+STR+'<div class="hang"><div class="big">'+gain+' €</div><div class="lbl">gagnés avec tes ventes</div><div class="mini"><span><b>'+it.filter(i=>i.status==='selling').length+'</b> en vente</span><span><b>'+sold.length+'</b> vendus</span><span><b>'+it.length+'</b> au total</span></div></div></div></header>'+
+  '<div class="chips">'+F.map(f=>'<button class="chip'+(S.filter===f[0]?' on':'')+'" data-a="filter" data-v="'+f[0]+'">'+f[1]+'</button>').join('')+'</div>'+
+  '<div class="list">'+body+'</div><button class="fab" data-a="new">+ Nouvel article</button>';
+}
+function prefillBanner(){
+  const p=S.prefill;if(!S.settings.key||!S.cur.photos.some(x=>!x.ai))return '';
+  if(p==='run')return '<div class="banner"><span class="spin"></span>Gemini regarde tes photos pour préremplir marque, taille, couleur…</div>';
+  if(p.startsWith('done'))return '<div class="banner">✓ '+(+p.split(':')[1]?p.split(':')[1]+' info(s) préremplie(s) depuis les photos. Vérifie-les à l’étape Infos.':'Photos analysées : rien de lisible à préremplir.')+'</div>';
+  if(p.startsWith('err'))return '<div class="err">Préremplissage impossible : '+esc(p.slice(4))+' <button class="chip" data-a="prefill">Réessayer</button></div>';
+  return '';
+}
+function vPhotos(c){
+  const real=c.photos.filter(p=>!p.ai);
+  return '<div class="box"><h2>Tes photos</h2><p class="hint">Face, dos, étiquette de marque, étiquette de taille, défauts. Touche une photo pour l’améliorer, la détourer ou la mettre en principale.</p></div>'+
+  (c.photos.length?'<div class="photos">'+c.photos.map((p,i)=>'<button class="pbox" data-a="photo" data-v="'+i+'"><img alt="Photo '+(i+1)+'" data-pid="'+esc(p.id)+'">'+(p.ai?'<span class="badge ai">Visuel IA</span>':i===0?'<span class="badge">Principale</span>':'')+(p.orig?'<span class="badge ed">Retouchée</span>':'')+'</button>').join('')+'</div>':'')+
+  (S.busy==='photos'?'<p class="hint"><span class="spin"></span> Ajout des photos…</p>':'')+
+  '<div class="add"><label>'+IC.img+'Choisir dans la galerie<input type="file" accept="image/*" multiple data-in="photos"></label><label>'+IC.cam+'Prendre une photo<input type="file" accept="image/*" capture="environment" data-in="photos"></label></div>'+
+  prefillBanner()+
+  (real.length?'<div class="card"><h3>Visuel porté (IA)</h3><p class="hint">Gemini crée une photo du vêtement porté, style Pinterest. Elle s’ajoute après tes vraies photos, et l’annonce le précise pour rester dans les règles Vinted.</p>'+
+  '<div class="opts">'+Object.keys(DECORS).map(k=>'<button class="chip'+(S.decor===k?' on':'')+'" data-a="decor" data-v="'+k+'">'+DECORS[k][0]+'</button>').join('')+'</div>'+
+  '<button class="btn" data-a="worn">1. Envoyer la photo + la consigne à Gemini</button><p class="note">Dans le menu de partage, choisis Gemini, puis envoie. Si Gemini n’apparaît pas : la consigne est copiée, ouvre Gemini, ajoute la photo et colle.</p>'+
+  '<label class="btn alt" style="position:relative">2. Ajouter le visuel obtenu<input class="hidden-in" type="file" accept="image/*" data-in="ai"></label></div>':'')+
+  '<p class="note">Astuce : prends tes photos avec l’appareil photo de l’iPhone puis choisis-les ici.</p>';
+}
+function vInfos(c){
+  const g=f=>c.guess&&c.guess[f]?' <span class="guess">· vu sur photo</span>':'';
+  const t=(f,l,ph)=>'<label>'+l+g(f)+'<input type="text" data-f="'+f+'" value="'+esc(c[f])+'" placeholder="'+ph+'"></label>';
+  const n=(f,l,ph)=>'<label>'+l+'<input type="number" inputmode="decimal" data-f="'+f+'" value="'+esc(c[f]??'')+'" placeholder="'+ph+'"></label>';
+  const vb=S.busy==='voice';
+  return '<div class="box"><h2>Ce que tu en sais</h2><p class="hint">Parle librement : état, défauts, prix payé, prix voulu… Gemini range tout dans les bonnes cases.</p></div>'+
+  '<div class="mic-wrap">'+(vb?'<span class="spin" style="width:40px;height:40px;border-width:5px;color:var(--stitch)"></span><b>Gemini écoute ta note…</b>':
+   S.rec?'<button class="micbtn rec" data-a="recstop" aria-label="Arrêter l’enregistrement">'+IC.stop+'</button><span class="timer" id="timer">0:00</span><span class="hint">Touche pour terminer (3 min max)</span>':
+   '<button class="micbtn" data-a="rec" aria-label="Enregistrer une note vocale">'+IC.mic+'</button><b>Touche pour parler</b><span class="hint">Ex. « Pull Zara taille M, porté 3 fois, une bouloche sous le bras, payé 40, j’en veux 15 minimum 10 »</span>')+'</div>'+
+  (S.err?'<div class="err">'+esc(S.err)+'</div>':'')+
+  '<div class="box"><span class="lab">Note écrite (et transcription de tes notes vocales)</span><textarea data-f="notes" placeholder="Tu peux aussi écrire ici">'+esc(c.notes)+'</textarea></div>'+
+  '<div class="g2">'+t('type','Type','Pull col rond')+t('brand','Marque','Zara')+t('size','Taille','M')+t('color','Couleur','Bleu marine')+t('material','Matière','Coton')+t('measures','Mesures','Aisselles 52 cm')+'</div>'+
+  '<div class="box"><span class="lab">État'+g('etat')+'</span><div class="opts">'+ETATS.map(e=>'<button class="chip'+(c.etat===e?' on':'')+'" data-a="etat" data-v="'+esc(e)+'">'+e+'</button>').join('')+'</div></div>'+
+  '<div class="box"><span class="lab">Défauts'+g('defects')+'</span><input type="text" data-f="defects" value="'+esc(c.defects)+'" placeholder="Aucun"></div>'+
+  '<div class="box"><span class="lab">Ton avis sur le prix</span><div class="g3">'+n('paid','Payé','40')+n('wanted','Espéré','15')+n('min','Minimum','10')+'</div></div>'+
+  '<div class="box"><span class="lab">Objectif</span><div class="opts"><button class="chip'+(c.goal==='fast'?' on':'')+'" data-a="goal" data-v="fast">Vendre vite</button><button class="chip'+(c.goal!=='fast'?' on':'')+'" data-a="goal" data-v="max">Meilleur prix</button></div></div>';
+}
+function fld(f,label,multi){
+  const a=S.cur.ai,v=f==='price'?(S.cur.price??''):(a[f]||'');
+  const inp=multi?'<textarea data-ai="'+f+'">'+esc(v)+'</textarea>':'<input '+(f==='price'?'type="number" inputmode="decimal" data-f="price"':'type="text" data-ai="'+f+'"')+' value="'+esc(v)+'">';
+  return '<div class="fld"><div class="fh"><span>'+label+'</span><button class="cp" data-a="copy" data-v="'+f+'">Copier</button></div>'+inp+'</div>';
+}
+function vAnnonce(c){
+  const busy=!!S.busy&&S.busy!=='photos',err=S.err?'<div class="err">'+esc(S.err)+'</div>':'';
+  if(!c.ai)return '<div class="box"><h2>L’annonce</h2><p class="hint">Gemini regarde tes photos et tes infos, puis prépare titre, description, hashtags, catégorie et prix.</p></div>'+err+
+    '<button class="btn hot" data-a="analyze"'+(busy?' disabled':'')+'>'+(S.busy==='full'?'<span class="spin"></span>Rédaction en cours…':'Créer l’annonce')+'</button>';
+  const a=c.ai,p=a.prix||{},q=a.recherche||[a.marque,a.type,a.taille].filter(Boolean).join(' ');
+  const chip=(k,l)=>p[k]!=null?'<button class="'+(c.price===p[k]?'on':'')+'" data-a="setprice" data-v="'+p[k]+'">'+l+' '+p[k]+' €</button>':'';
+  const sp=k=>S.busy===k?'<span class="spin"></span>':'';
+  return err+'<div style="position:relative">'+STR+'<div class="tag hang" style="margin:0 0 0 18px"><div class="lbl">Prix conseillé</div><div class="big">'+eur(p.conseille)+'</div><div class="row">'+chip('rapide','Vite')+chip('bas','Bas')+chip('conseille','Conseillé')+chip('haut','Haut')+'</div>'+(a.explication?'<p>'+esc(a.explication)+'</p>':'')+'</div></div>'+
+  '<div class="box"><a class="ext" href="https://www.vinted.fr/catalog?search_text='+encodeURIComponent(q)+'" target="_blank" rel="noopener">Voir les articles similaires sur Vinted ↗</a>'+
+  '<div style="display:flex;gap:8px"><input type="text" data-f="seen" value="'+esc(c.seen)+'" placeholder="Prix vus, ex. 12, 15, 18"><button class="btn alt" data-a="reprice"'+(busy?' disabled':'')+' style="flex:none">'+sp('price')+'Recalculer</button></div></div>'+
+  '<div class="card"><h3>Ta fiche, dans l’ordre de Vinted</h3><button class="btn" data-a="savephotos">1. Enregistrer les '+c.photos.length+' photos dans la galerie</button><p class="note">Dans le menu de partage, choisis « Enregistrer les images ». Ensuite, copie chaque champ et colle-le dans Vinted.</p></div>'+
+  fld('titre','Titre')+fld('description','Description + hashtags',true)+
+  '<div class="opts">'+Object.keys(STYLES).map(k=>'<button class="chip" data-a="desc" data-v="'+k+'"'+(busy?' disabled':'')+'>'+sp(k)+' Plus '+(k==='court'?'court':k)+'</button>').join('')+'<button class="chip" data-a="analyze"'+(busy?' disabled':'')+'>'+sp('full')+' Tout refaire</button></div>'+
+  (c.photos.some(x=>x.ai)?'<p class="note">La mention du visuel IA est ajoutée automatiquement quand tu copies la description.</p>':'')+
+  fld('hashtags','Hashtags')+fld('categorie','Catégorie (à choisir dans Vinted)')+'<div class="g2" style="gap:12px">'+fld('marque','Marque')+fld('taille','Taille')+fld('etat','État')+fld('couleur','Couleur')+'</div>'+fld('matiere','Matière')+fld('price','Prix (€)')+vStatus(c);
+}
+function vStatus(c){
+  let h='<div class="box" style="margin-top:6px">';
+  if(c.status==='selling')h+='<p class="hint">En vente depuis '+days(c.listedAt)+' jour'+(days(c.listedAt)>1?'s':'')+'.</p>';
+  if(c.status==='sold')h+='<p class="hint">Vendu '+eur(c.soldPrice)+'.</p><button class="btn alt" data-a="relist">Remettre en vente</button>';
+  if(S.soldOpen)h+='<div class="sold"><label class="lab" for="soldp">Prix de vente final (€)</label><input id="soldp" type="number" inputmode="decimal" value="'+esc(c.price??'')+'"><button class="btn" data-a="soldok">Valider la vente</button></div>';
+  return h+'<button class="btn alt" data-a="del" style="color:var(--warn)">'+(S.confirmDel?'Touche encore pour supprimer définitivement':'Supprimer l’article')+'</button></div>';
+}
+function vEdit(){
+  const c=S.cur,steps=['Photos','Infos','Annonce'];
+  const title=c.ai&&c.ai.titre?c.ai.titre:(S.items.some(i=>i.id===c.id)?'Article':'Nouvel article');
+  const inner=S.step===0?vPhotos(c):S.step===1?vInfos(c):vAnnonce(c);
+  let foot;
+  if(S.step<2)foot='<button class="btn alt" data-a="home">Mes articles</button><button class="btn" data-a="next">Suivant</button>';
+  else if(!c.ai)foot='<button class="btn alt" data-a="step" data-v="1">Retour</button><button class="btn alt" data-a="home">Mes articles</button>';
+  else if(c.status==='selling')foot='<button class="btn alt" data-a="home">Mes articles</button><button class="btn" data-a="sold">Vendu !</button>';
+  else if(c.status==='sold')foot='<button class="btn" data-a="home">Mes articles</button>';
+  else foot='<button class="btn alt" data-a="home">Plus tard</button><button class="btn hot" data-a="published">J’ai publié</button>';
+  return '<header class="top"><div class="bar"><button class="icon" data-a="home" aria-label="Retour à mes articles">'+IC.back+'</button><h2 style="flex:1;color:#fff;font-size:20px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(title)+'</h2></div>'+
+  '<div class="steps">'+steps.map((s,i)=>'<button class="'+(S.step===i?'on':'')+'" data-a="step" data-v="'+i+'">'+(i+1)+'. '+s+'</button>').join('')+'</div></header>'+
+  '<div class="sec">'+inner+'</div><div class="foot"><div class="wrap">'+foot+'</div></div>';
+}
+function vSettings(){
+  const s=S.settings;
+  return '<header class="top"><div class="bar"><button class="icon" data-a="home" aria-label="Retour">'+IC.back+'</button><h1 style="flex:1">Réglages</h1></div></header><div class="sec">'+
+  '<div class="card"><h3>Clé Gemini (gratuite)</h3><ol class="steps-list"><li>Ouvre <a class="ext" href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey ↗</a> avec ton compte Google.</li><li>Touche « Create API key » (ou « Créer une clé API »).</li><li>Copie la clé et colle-la ici.</li></ol>'+
+  '<input type="password" data-s="key" value="'+esc(s.key)+'" placeholder="AIza…" autocomplete="off" autocapitalize="off" spellcheck="false">'+
+  '<button class="btn" data-a="testkey"'+(S.busy==='test'?' disabled':'')+'>'+(S.busy==='test'?'<span class="spin"></span>Test…':'Tester la clé')+'</button>'+
+  (S.keyMsg?'<p class="hint">'+esc(S.keyMsg)+'</p>':'')+
+  '<p class="note">La clé reste sur ton téléphone. En offre gratuite, Google peut utiliser les photos et notes envoyées pour améliorer ses produits : évite d’y mettre des infos personnelles.</p></div>'+
+  '<div class="box"><span class="lab">Ton des descriptions</span><div class="opts">'+Object.keys(TONES).map(k=>'<button class="chip'+(s.tone===k?' on':'')+'" data-a="tone" data-v="'+k+'">'+TONES[k]+'</button>').join('')+'</div></div>'+
+  '<div class="box"><label class="lab" for="sg">Phrase de fin ajoutée à chaque description</label><input id="sg" type="text" data-s="sign" value="'+esc(s.sign)+'"></div>'+
+  '<div class="box"><label class="lab" for="tg">Tes hashtags favoris (ajoutés à chaque fois)</label><input id="tg" type="text" data-s="tags" value="'+esc(s.tags)+'" placeholder="#vintage #friperie"></div>'+
+  '<div class="box"><span class="lab">Sauvegarde</span><p class="hint">Tes articles et photos sont enregistrés sur ce téléphone. Exporte de temps en temps pour ne rien perdre.</p><div class="g2"><button class="btn alt" data-a="export"'+(S.busy==='export'?' disabled':'')+'>'+(S.busy==='export'?'<span class="spin"></span>':'')+'Exporter</button><label class="btn alt" style="position:relative">Importer<input class="hidden-in" type="file" accept="application/json,.json" data-in="import"></label></div></div>'+
+  '<p class="note">Rien n’est publié automatiquement sur Vinted. Vite Vendu V2.</p></div>';
+}
+function render(){app.innerHTML=S.view==='edit'&&S.cur?vEdit():S.view==='settings'?vSettings():vHome();hydrate();renderSheet()}
+
+/* fiche photo */
+function renderSheet(){
+  const el=$('#sheet');if(!S.sheet||!S.cur){el.innerHTML='';return}
+  const i=S.sheet.i,p=S.cur.photos[i];if(!p){S.sheet=null;el.innerHTML='';return}
+  const b=S.sheet.busy;
+  el.innerHTML='<div class="sheet" data-a="sheetbg"><div class="in"><img alt="" data-pid="'+esc(p.id)+'">'+
+  (b?'<div class="banner"><span class="spin"></span>'+esc(b)+'</div>':
+  (p.ai?'':'<div class="g2"><button class="btn alt" data-a="enh">Améliorer la lumière</button><button class="btn alt" data-a="wbg">Fond blanc</button></div>')+
+  (i>0&&!p.ai?'<button class="btn alt" data-a="pmain">Mettre en photo principale</button>':'')+
+  (p.orig?'<button class="btn alt" data-a="revert">Revenir à l’original</button>':'')+
+  '<div class="g2"><button class="btn alt" data-a="pdel" style="color:var(--warn)">Supprimer</button><button class="btn" data-a="sheetclose">Fermer</button></div>'+
+  (p.ai?'':'<p class="note">Fond blanc : la 1re fois, le module de détourage se télécharge (environ 40 Mo). Utilise le Wi-Fi.</p>'))+'</div></div>';
+  hydrate();
+}
+async function editPhoto(kind){
+  const c=S.cur,i=S.sheet.i,p=c.photos[i];
+  S.sheet.busy=kind==='enh'?'Amélioration…':'Détourage… (peut prendre 30 s)';renderSheet();
+  try{
+    const src=await photoBlob(p.id);
+    const out=kind==='enh'?await enhance(src):await whiteBg(src,pc=>{if(S.sheet){S.sheet.busy='Téléchargement du module… '+pc+' %';renderSheet()}});
+    const id=uid('p');await DB.putPhoto(id,out);
+    if(p.orig){DB.delPhoto(p.id).catch(()=>{})}else p.orig=p.id;
+    if(urls[p.id]&&p.id!==p.orig){URL.revokeObjectURL(urls[p.id]);delete urls[p.id]}
+    p.id=id;saveNow();toast(kind==='enh'?'Photo améliorée':'Fond blanc appliqué');
+  }catch(e){toast(kind==='wbg'?'Détourage impossible sur ce téléphone pour le moment':'Retouche impossible',3500)}
+  if(S.sheet)S.sheet.busy='';render();
+}
+
+/* =============== actions =============== */
+async function addFiles(files,ai){
+  const c=S.cur;if(!c||!files.length)return;S.busy='photos';render();
+  for(const f of files){try{const b=await shrink(f,1600,.88),id=uid('p');await DB.putPhoto(id,b);const p={id};if(ai)p.ai=true;if(ai)c.photos.push(p);else{const k=c.photos.findIndex(x=>x.ai);k<0?c.photos.push(p):c.photos.splice(k,0,p)}}catch(e){toast('Une photo n’a pas pu être ajoutée')}}
+  S.busy='';saveNow();render();if(!ai)prefill();else toast('Visuel IA ajouté en dernière photo');
+}
+async function exportAll(){
+  S.busy='export';render();
+  try{
+    const photos={};for(const it of S.items)for(const p of it.photos||[])for(const id of [p.id,p.orig].filter(Boolean)){const b=await DB.getPhoto(id).catch(()=>null);if(b)photos[id]=await b64(b)}
+    const blob=new Blob([JSON.stringify({app:'vite-vendu',v:2,date:new Date().toISOString(),items:S.items,photos,settings:{...S.settings,key:''}})],{type:'application/json'});
+    const f=new File([blob],'vite-vendu-sauvegarde-'+new Date().toISOString().slice(0,10)+'.json',{type:'application/json'});
+    if(!(await shareFiles([f]))){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=f.name;document.body.appendChild(a);a.click();a.remove()}
+  }catch(e){toast('Export impossible')}
+  S.busy='';render();
+}
+async function importAll(file){
+  try{const j=JSON.parse(await file.text());if(j.app!=='vite-vendu')throw 0;
+    for(const id in j.photos||{}){const bin=atob(j.photos[id]),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);await DB.putPhoto(id,new Blob([u],{type:'image/jpeg'}))}
+    for(const it of j.items||[]){await DB.put(it)}S.items=(await DB.all()).sort((a,b)=>(b.updated||0)-(a.updated||0));toast((j.items||[]).length+' article(s) importé(s)');render();
+  }catch(e){toast('Fichier de sauvegarde illisible')}
+}
+async function act(a,v,b){
+  const c=S.cur;
+  switch(a){
+    case 'new':S.cur={id:uid('it_'),status:'draft',created:Date.now(),photos:[],notes:'',type:'',brand:'',size:'',color:'',material:'',etat:'',defects:'',measures:'',genre:'',paid:null,wanted:null,min:null,goal:'max',seen:'',ai:null,price:null,guess:{}};S.view='edit';S.step=0;S.err='';S.prefill='';break;
+    case 'open':{const it=S.items.find(i=>i.id===v);if(!it)return;S.cur=JSON.parse(JSON.stringify(it));S.cur.photos=S.cur.photos||[];S.view='edit';S.step=it.ai?2:it.photos&&it.photos.length?1:0;S.err='';S.prefill=it.prefillSig?'':'';break}
+    case 'home':if(S.rec)S.rec.stop();saveNow();S.cur=null;S.sheet=null;S.view='home';S.confirmDel=false;S.soldOpen=false;S.err='';break;
+    case 'settings':S.view='settings';S.keyMsg='';break;
+    case 'filter':S.filter=v;break;
+    case 'step':S.step=+v;S.confirmDel=false;S.err='';break;
+    case 'next':saveNow();S.step=Math.min(2,S.step+1);S.err='';break;
+    case 'prefill':if(c){c.prefillSig='';prefill()}return;
+    case 'photo':S.sheet={i:+v,busy:''};renderSheet();return;
+    case 'sheetbg':if(b===document.querySelector('.sheet')&&!S.sheet.busy){S.sheet=null;renderSheet()}return;
+    case 'sheetclose':S.sheet=null;render();return;
+    case 'pmain':{const p=c.photos.splice(S.sheet.i,1)[0];c.photos.unshift(p);S.sheet=null;saveNow();break}
+    case 'pdel':{const p=c.photos.splice(S.sheet.i,1)[0];if(p){DB.delPhoto(p.id).catch(()=>{});if(p.orig)DB.delPhoto(p.orig).catch(()=>{})}S.sheet=null;saveNow();break}
+    case 'revert':{const p=c.photos[S.sheet.i];DB.delPhoto(p.id).catch(()=>{});p.id=p.orig;delete p.orig;saveNow();break}
+    case 'enh':editPhoto('enh');return;
+    case 'wbg':editPhoto('wbg');return;
+    case 'decor':S.decor=v;break;
+    case 'worn':{
+      const t=wornPrompt();copy(t);const m=c.photos.find(p=>!p.ai);
+      let shared=false;if(m){const bl=await photoBlob(m.id);if(bl)shared=await shareFiles([new File([bl],'article.jpg',{type:'image/jpeg'})],t)}
+      if(!shared){toast('Consigne copiée. Ouvre Gemini, ajoute la photo et colle.',4000);window.open('https://gemini.google.com/app','_blank')}
+      return}
+    case 'savephotos':{
+      const files=[];for(const [i,p] of c.photos.entries()){const bl=await photoBlob(p.id);if(bl)files.push(new File([bl],'vinted-'+(i+1)+'.jpg',{type:'image/jpeg'}))}
+      if(!files.length){toast('Aucune photo');return}
+      if(!(await shareFiles(files)))toast('Partage indisponible : ouvre l’appli depuis l’écran d’accueil',3500);return}
+    case 'rec':if(needKey())return;startRec();return;
+    case 'recstop':if(S.rec)S.rec.stop();return;
+    case 'etat':c.etat=c.etat===v?'':v;if(c.guess)delete c.guess.etat;if(c.ai)c.ai.etat=c.etat||c.ai.etat;saveNow();break;
+    case 'goal':c.goal=v;saveNow();break;
+    case 'analyze':analyze('full');return;
+    case 'reprice':analyze('price');return;
+    case 'desc':analyze(v);return;
+    case 'setprice':c.price=+v;saveNow();break;
+    case 'copy':{const t=fieldText(v);if(!t){toast('Champ vide');return}copy(t,b);return}
+    case 'published':c.status='selling';c.listedAt=Date.now();saveNow();toast('Bonne vente !');S.cur=null;S.view='home';break;
+    case 'sold':S.soldOpen=!S.soldOpen;break;
+    case 'soldok':c.soldPrice=num($('#soldp').value)??c.price;c.status='sold';c.soldAt=Date.now();S.soldOpen=false;saveNow();toast('Vendu '+eur(c.soldPrice)+' !');break;
+    case 'relist':c.status='selling';c.soldPrice=null;c.soldAt=null;c.listedAt=Date.now();saveNow();break;
+    case 'del':
+      if(!S.confirmDel){S.confirmDel=true;break}
+      S.items=S.items.filter(i=>i.id!==c.id);DB.del(c.id).catch(()=>{});for(const p of c.photos){DB.delPhoto(p.id).catch(()=>{});if(p.orig)DB.delPhoto(p.orig).catch(()=>{})}
+      S.cur=null;S.view='home';S.confirmDel=false;toast('Article supprimé');break;
+    case 'tone':S.settings.tone=v;saveSettings();break;
+    case 'testkey':
+      S.busy='test';S.keyMsg='';render();
+      try{const l=await models(true);S.keyMsg=l.length?'✓ Clé valide. Modèle utilisé : '+l[0].replace('models/',''):'Clé valide mais aucun modèle compatible trouvé.'}catch(e){S.keyMsg='✗ '+errMsg(e)}
+      S.busy='';break;
+    case 'export':exportAll();return;
+  }
+  render();
+}
+app.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(b&&!b.disabled)act(b.dataset.a,b.dataset.v,b)});
+$('#sheet').addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(b&&!b.disabled)act(b.dataset.a,b.dataset.v,e.target.closest('.sheet')===e.target?e.target:b)});
+app.addEventListener('input',e=>{
+  const t=e.target,c=S.cur;
+  if(t.dataset.f&&c){const f=t.dataset.f;c[f]=['paid','wanted','min','price'].includes(f)?num(t.value):t.value;if(c.guess&&c.guess[f]){delete c.guess[f]}saveSoon()}
+  else if(t.dataset.ai&&c&&c.ai){c.ai[t.dataset.ai]=t.value;saveSoon()}
+  else if(t.dataset.s){S.settings[t.dataset.s]=t.dataset.s==='key'?t.value.trim():t.value;saveSettings()}
+});
+app.addEventListener('change',e=>{const t=e.target;if(t.type!=='file')return;const fs=[...t.files];t.value='';const k=t.dataset.in;if(k==='import'){if(fs[0])importAll(fs[0])}else addFiles(fs,k==='ai')});
+
+/* =============== démarrage =============== */
+(async()=>{
+  try{S.items=(await DB.all()).sort((a,b)=>(b.updated||b.created||0)-(a.updated||a.created||0))}catch(e){toast('Stockage indisponible (navigation privée ?)',4000)}
+  render();
+  try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
+  if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(()=>{});
+})();
+}
+</script>
+</body>
+</html>
